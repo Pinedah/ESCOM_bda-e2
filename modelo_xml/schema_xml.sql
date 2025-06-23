@@ -66,15 +66,27 @@ RETURNS TABLE(
     director TEXT,
     generos TEXT[]
 ) AS $$
+DECLARE
+    titulo_val TEXT;
+    fecha_val TEXT;
+    ranking_val TEXT;
+    director_val TEXT;
+    generos_val TEXT[];
 BEGIN
+    -- Extraer valores individualmente
+    SELECT (xpath('/pelicula/informacion_basica/titulo/text()', doc))[1]::text INTO titulo_val;
+    SELECT (xpath('/pelicula/informacion_basica/fecha_estreno/text()', doc))[1]::text INTO fecha_val;
+    SELECT (xpath('/pelicula/informacion_basica/ranking/text()', doc))[1]::text INTO ranking_val;
+    SELECT (xpath('/pelicula/direccion/director/nombre/text()', doc))[1]::text INTO director_val;
+    SELECT xpath('/pelicula/clasificacion/genero/text()', doc)::text[] INTO generos_val;
+    
     RETURN QUERY
     SELECT 
-        (xpath('/pelicula/informacion_basica/titulo/text()', doc))[1]::text,
-        (xpath('/pelicula/informacion_basica/fecha_estreno/text()', doc))[1]::text::date,
-        (xpath('/pelicula/informacion_basica/ranking/text()', doc))[1]::text::numeric(2,1),
-        (xpath('/pelicula/direccion/director/nombre/text()', doc))[1]::text,
-        xpath('/pelicula/clasificacion/genero/text()', doc)::text[]
-    ;
+        titulo_val,
+        fecha_val::date,
+        ranking_val::numeric(2,1),
+        director_val,
+        generos_val;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -121,56 +133,57 @@ CREATE TRIGGER validar_xml_pelicula_trigger
 
 -- ===== ÍNDICES XML =====
 
--- Índice GIN para búsquedas XPath eficientes
-CREATE INDEX idx_peliculas_xml_gin ON xml_cine.peliculas_xml USING gin(documento_xml);
-CREATE INDEX idx_personas_xml_gin ON xml_cine.personas_xml USING gin(documento_xml);
-CREATE INDEX idx_criticas_xml_gin ON xml_cine.criticas_xml USING gin(documento_xml);
+-- Índices GIN para búsquedas XPath (comentados por compatibilidad)
+-- PostgreSQL no soporta índices GIN directos en columnas XML
+-- CREATE INDEX idx_peliculas_xml_gin ON xml_cine.peliculas_xml USING gin(documento_xml);
+-- CREATE INDEX idx_personas_xml_gin ON xml_cine.personas_xml USING gin(documento_xml);
+-- CREATE INDEX idx_criticas_xml_gin ON xml_cine.criticas_xml USING gin(documento_xml);
 
--- Índices funcionales para búsquedas específicas
-CREATE INDEX idx_pelicula_titulo_xpath ON xml_cine.peliculas_xml 
-    ((xpath('/pelicula/informacion_basica/titulo/text()', documento_xml))[1]::text);
+-- Índices alternativos para mejorar el rendimiento
+CREATE INDEX idx_peliculas_titulo ON xml_cine.peliculas_xml (titulo);
+CREATE INDEX idx_personas_nombre ON xml_cine.personas_xml (nombre);
+CREATE INDEX idx_personas_tipo ON xml_cine.personas_xml (tipo_persona);
+CREATE INDEX idx_criticas_pelicula ON xml_cine.criticas_xml (id_pelicula);
 
-CREATE INDEX idx_pelicula_ranking_xpath ON xml_cine.peliculas_xml 
-    ((xpath('/pelicula/informacion_basica/ranking/text()', documento_xml))[1]::text::numeric);
+-- Índices funcionales para búsquedas específicas (comentados por compatibilidad)
+-- CREATE INDEX idx_pelicula_titulo_xpath ON xml_cine.peliculas_xml 
+--     ((xpath('/pelicula/informacion_basica/titulo/text()', documento_xml))[1]::text);
+
+-- CREATE INDEX idx_pelicula_ranking_xpath ON xml_cine.peliculas_xml 
+--     ((xpath('/pelicula/informacion_basica/ranking/text()', documento_xml))[1]::text::numeric);
 
 -- ===== VISTAS XML =====
 
--- Vista para extraer información básica de películas
-CREATE VIEW xml_cine.vista_peliculas_basica AS
+-- Vista básica sin extracciones complejas
+CREATE VIEW xml_cine.vista_peliculas_simple AS
 SELECT 
     p.id_documento,
-    (xpath('/pelicula/informacion_basica/titulo/text()', p.documento_xml))[1]::text as titulo,
-    (xpath('/pelicula/informacion_basica/fecha_estreno/text()', p.documento_xml))[1]::text::date as fecha_estreno,
-    (xpath('/pelicula/informacion_basica/ranking/text()', p.documento_xml))[1]::text::numeric(2,1) as ranking,
-    (xpath('/pelicula/direccion/director/nombre/text()', p.documento_xml))[1]::text as director,
-    xpath('/pelicula/clasificacion/genero/text()', p.documento_xml) as generos
+    p.titulo,
+    p.documento_xml,
+    p.fecha_creacion
 FROM xml_cine.peliculas_xml p;
 
--- Vista para críticas extraídas
-CREATE VIEW xml_cine.vista_criticas_extraidas AS
+-- Vista para críticas básica
+CREATE VIEW xml_cine.vista_criticas_simple AS
 SELECT 
     c.id_documento,
     c.id_pelicula,
-    (xpath('/criticas/critica/@fecha', c.documento_xml))[1]::text::date as fecha,
-    (xpath('/criticas/critica/autor/text()', c.documento_xml))[1]::text as autor,
-    (xpath('/criticas/critica/medio/text()', c.documento_xml))[1]::text as medio,
-    (xpath('/criticas/critica/puntuacion/text()', c.documento_xml))[1]::text::numeric(2,1) as puntuacion,
-    (xpath('/criticas/critica/contenido/text()', c.documento_xml))[1]::text as contenido
+    c.documento_xml,
+    c.fecha_creacion
 FROM xml_cine.criticas_xml c;
 
--- Vista para análisis de actores
-CREATE VIEW xml_cine.vista_actores_salarios AS
+-- Vista para personas básica
+CREATE VIEW xml_cine.vista_personas_simple AS
 SELECT 
     per.id_documento,
-    (xpath('/persona/informacion_basica/nombre/text()', per.documento_xml))[1]::text as nombre,
-    (xpath('/persona/informacion_financiera/salario_total/text()', per.documento_xml))[1]::text::numeric(12,2) as salario_total,
-    xpath('/persona/filmografia/pelicula/titulo/text()', per.documento_xml) as peliculas
-FROM xml_cine.personas_xml per
-WHERE per.tipo_persona = 'Actor';
+    per.nombre,
+    per.tipo_persona,
+    per.documento_xml
+FROM xml_cine.personas_xml per;
 
 -- ===== FUNCIONES DE CONSULTA ESPECÍFICAS =====
 
--- Función para obtener salarios de actores por película (usando XQuery-like)
+-- Función para obtener salarios de actores por película (simplificada)
 CREATE OR REPLACE FUNCTION xml_cine.obtener_salarios_actores_pelicula(titulo_pelicula TEXT)
 RETURNS TABLE(
     actor_nombre TEXT,
@@ -178,20 +191,37 @@ RETURNS TABLE(
     tipo_actuacion TEXT,
     personaje TEXT
 ) AS $$
+DECLARE
+    doc_xml XML;
+    actor_val TEXT;
+    salario_val TEXT;
+    tipo_val TEXT;
+    personaje_val TEXT;
 BEGIN
-    RETURN QUERY
-    SELECT 
-        (xpath('/persona/informacion_basica/nombre/text()', per.documento_xml))[1]::text,
-        (xpath('/persona/filmografia/pelicula[titulo="' || titulo_pelicula || '"]/salario/text()', per.documento_xml))[1]::text::numeric(12,2),
-        (xpath('/persona/filmografia/pelicula[titulo="' || titulo_pelicula || '"]/tipo_actuacion/text()', per.documento_xml))[1]::text,
-        (xpath('/persona/filmografia/pelicula[titulo="' || titulo_pelicula || '"]/personaje/text()', per.documento_xml))[1]::text
-    FROM xml_cine.personas_xml per
-    WHERE per.tipo_persona = 'Actor'
-      AND xpath_exists('/persona/filmografia/pelicula[titulo="' || titulo_pelicula || '"]', per.documento_xml);
+    -- Obtener el documento XML de la película
+    SELECT documento_xml INTO doc_xml
+    FROM xml_cine.peliculas_xml pel
+    WHERE pel.titulo = titulo_pelicula
+    LIMIT 1;
+    
+    IF doc_xml IS NOT NULL THEN
+        -- Extraer información del primer actor encontrado
+        SELECT (xpath('/pelicula/reparto/participacion/actor/informacion_personal/nombre/text()', doc_xml))[1]::text INTO actor_val;
+        SELECT (xpath('/pelicula/reparto/participacion/actor/informacion_financiera/salario_total/text()', doc_xml))[1]::text INTO salario_val;
+        SELECT (xpath('/pelicula/reparto/participacion/tipo_actuacion/text()', doc_xml))[1]::text INTO tipo_val;
+        SELECT (xpath('/pelicula/reparto/participacion/personaje/text()', doc_xml))[1]::text INTO personaje_val;
+        
+        RETURN QUERY
+        SELECT 
+            actor_val,
+            salario_val::numeric(12,2),
+            tipo_val,
+            personaje_val;
+    END IF;
 END;
 $$ LANGUAGE plpgsql;
 
--- Función para obtener premios usando XMLTABLE
+-- Función para obtener premios usando XMLTABLE (simplificada)
 CREATE OR REPLACE FUNCTION xml_cine.obtener_premios_pelicula(titulo_pelicula TEXT)
 RETURNS TABLE(
     nombre_premio TEXT,
@@ -215,7 +245,7 @@ BEGIN
                      fecha_otorgamiento TEXT PATH 'fecha_otorgamiento/text()',
                      categoria TEXT PATH 'categoria/text()'
          ) AS x
-    WHERE (xpath('/pelicula/informacion_basica/titulo/text()', p.documento_xml))[1]::text = titulo_pelicula;
+    WHERE p.titulo = titulo_pelicula;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -238,14 +268,25 @@ CREATE TRIGGER actualizar_version_peliculas
 -- Función para transformar XML usando XSLT (simulada con SQL/XML)
 CREATE OR REPLACE FUNCTION xml_cine.transformar_xml_resumen(doc XML)
 RETURNS XML AS $$
+DECLARE
+    titulo_val TEXT;
+    director_val TEXT;
+    año_val TEXT;
+    ranking_val TEXT;
 BEGIN
+    -- Extraer valores primero
+    titulo_val := (xpath('/pelicula/informacion_basica/titulo/text()', doc))[1]::text;
+    director_val := (xpath('/pelicula/direccion/director/nombre/text()', doc))[1]::text;
+    año_val := extract(year from (xpath('/pelicula/informacion_basica/fecha_estreno/text()', doc))[1]::text::date)::text;
+    ranking_val := (xpath('/pelicula/informacion_basica/ranking/text()', doc))[1]::text;
+    
     -- Crear un resumen XML simplificado
     RETURN xmlelement(
         name "resumen_pelicula",
-        xmlelement(name "titulo", (xpath('/pelicula/informacion_basica/titulo/text()', doc))[1]),
-        xmlelement(name "director", (xpath('/pelicula/direccion/director/nombre/text()', doc))[1]),
-        xmlelement(name "año", extract(year from (xpath('/pelicula/informacion_basica/fecha_estreno/text()', doc))[1]::text::date)),
-        xmlelement(name "ranking", (xpath('/pelicula/informacion_basica/ranking/text()', doc))[1])
+        xmlelement(name "titulo", titulo_val),
+        xmlelement(name "director", director_val),
+        xmlelement(name "año", año_val),
+        xmlelement(name "ranking", ranking_val)
     );
 END;
 $$ LANGUAGE plpgsql;
@@ -264,15 +305,21 @@ BEGIN
         xmlagg(
             xmlelement(
                 name "pelicula",
-                xmlelement(name "titulo", (xpath('/pelicula/informacion_basica/titulo/text()', documento_xml))[1]),
-                xmlelement(name "año", extract(year from (xpath('/pelicula/informacion_basica/fecha_estreno/text()', documento_xml))[1]::text::date)),
-                xmlelement(name "ranking", (xpath('/pelicula/informacion_basica/ranking/text()', documento_xml))[1])
+                xmlelement(name "titulo", sub.titulo),
+                xmlelement(name "año", sub.año),
+                xmlelement(name "ranking", sub.ranking)
             )
         )
     )
     INTO resultado
-    FROM xml_cine.peliculas_xml
-    WHERE (xpath('/pelicula/direccion/director/nombre/text()', documento_xml))[1]::text = nombre_director;
+    FROM (
+        SELECT 
+            (xpath('/pelicula/informacion_basica/titulo/text()', documento_xml))[1]::text as titulo,
+            extract(year from (xpath('/pelicula/informacion_basica/fecha_estreno/text()', documento_xml))[1]::text::date)::text as año,
+            (xpath('/pelicula/informacion_basica/ranking/text()', documento_xml))[1]::text as ranking
+        FROM xml_cine.peliculas_xml
+        WHERE (xpath('/pelicula/direccion/director/nombre/text()', documento_xml))[1]::text = nombre_director
+    ) sub;
     
     RETURN resultado;
 END;

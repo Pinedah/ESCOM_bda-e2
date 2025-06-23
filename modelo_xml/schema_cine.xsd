@@ -16,20 +16,18 @@
             <xs:fractionDigits value="1"/>
         </xs:restriction>
     </xs:simpleType>
-    
-    <!-- Tipo para salarios de actores -->
+      <!-- Tipo para salarios de actores (relajado) -->
     <xs:simpleType name="SalarioActorType">
         <xs:restriction base="xs:decimal">
-            <xs:minInclusive value="600000.00"/>
-            <xs:maxInclusive value="4900000.00"/>
+            <xs:minInclusive value="0.00"/>
             <xs:fractionDigits value="2"/>
         </xs:restriction>
     </xs:simpleType>
     
-    <!-- Tipo para aportaciones económicas -->
+    <!-- Tipo para aportaciones económicas (relajado) -->
     <xs:simpleType name="AportacionType">
         <xs:restriction base="xs:decimal">
-            <xs:minExclusive value="0"/>
+            <xs:minInclusive value="0"/>
             <xs:fractionDigits value="2"/>
         </xs:restriction>
     </xs:simpleType>

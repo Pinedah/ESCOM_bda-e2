@@ -2,6 +2,7 @@
 -- Implementación usando XPath, SQL/XML y XMLTABLE
 
 -- A. Total de salarios pagados a los actores de "Cinema Paradiso", dirigida por "Giuseppe Tornatore"
+-- Usa XMLTABLE para manejar múltiples participaciones de actores
 WITH salarios_actores AS (
     SELECT 
         -- Extraer título de la película
@@ -10,9 +11,9 @@ WITH salarios_actores AS (
         (xpath('/pelicula/direccion/director/informacion_personal/nombre/text()', p.documento_xml))[1]::text as director,
         -- Usar XMLTABLE para extraer información de cada actor
         act.nombre_actor,
-        act.salario_total,
-        act.personaje,
-        act.tipo_actuacion
+        COALESCE(act.salario_total, 0) as salario_total, -- Evitar NULL
+        COALESCE(act.personaje, 'No especificado') as personaje,
+        COALESCE(act.tipo_actuacion, 'No especificado') as tipo_actuacion
     FROM xml_cine.peliculas_xml p,
          XMLTABLE('/pelicula/reparto/participacion' 
                  PASSING p.documento_xml
@@ -32,7 +33,7 @@ SELECT
     director,
     COUNT(*) as total_actores,
     SUM(salario_total) as total_salarios_pagados,
-    AVG(salario_total) as salario_promedio,
+    ROUND(AVG(salario_total), 2) as salario_promedio,
     MAX(salario_total) as salario_maximo,
     MIN(salario_total) as salario_minimo,
     STRING_AGG(
@@ -44,17 +45,23 @@ FROM salarios_actores
 GROUP BY titulo_pelicula, director;
 
 -- B. Premios recibidos por "Cinema Paradiso", con ranking (descendente), nombre del premio y lugar del certamen
+-- Usa XMLTABLE para extraer premios y maneja valores NULL
 SELECT 
     (xpath('/pelicula/informacion_basica/titulo/text()', p.documento_xml))[1]::text as pelicula,
     (xpath('/pelicula/informacion_basica/ranking/text()', p.documento_xml))[1]::text::numeric(2,1) as ranking,
-    prem.nombre_premio,
-    prem.certamen,
-    prem.categoria,
+    COALESCE(prem.nombre_premio, 'Premio no especificado') as nombre_premio,
+    COALESCE(prem.certamen, 'Certamen no especificado') as certamen,
+    COALESCE(prem.categoria, 'Categoría no especificada') as categoria,
     prem.fecha_otorgamiento::date,
-    prem.tipo_certamen,
-    prem.prestigio,
-    -- Calcular días desde el estreno hasta el premio
-    prem.fecha_otorgamiento::date - (xpath('/pelicula/informacion_basica/fecha_estreno/text()', p.documento_xml))[1]::text::date as dias_desde_estreno
+    COALESCE(prem.tipo_certamen, 'Tipo no especificado') as tipo_certamen,
+    COALESCE(prem.prestigio, 'Prestigio no especificado') as prestigio,
+    -- Calcular días desde el estreno hasta el premio (manejo de NULL)
+    CASE 
+        WHEN prem.fecha_otorgamiento IS NOT NULL THEN
+            prem.fecha_otorgamiento::date - (xpath('/pelicula/informacion_basica/fecha_estreno/text()', p.documento_xml))[1]::text::date
+        ELSE NULL
+    END as dias_desde_estreno,
+    EXTRACT(YEAR FROM prem.fecha_otorgamiento::date) as año_premio
 FROM xml_cine.peliculas_xml p,
      XMLTABLE('/pelicula/premios/premio' 
              PASSING p.documento_xml
@@ -70,12 +77,12 @@ FROM xml_cine.peliculas_xml p,
 WHERE (xpath('/pelicula/informacion_basica/titulo/text()', p.documento_xml))[1]::text = 'Cinema Paradiso'
 ORDER BY 
     (xpath('/pelicula/informacion_basica/ranking/text()', p.documento_xml))[1]::text::numeric(2,1) DESC,
-    CASE prem.prestigio 
+    CASE COALESCE(prem.prestigio, '')
         WHEN 'Muy Alto' THEN 1 
         WHEN 'Alto' THEN 2 
         ELSE 3 
     END,
-    prem.fecha_otorgamiento::date DESC;
+    COALESCE(prem.fecha_otorgamiento::date, '1900-01-01'::date) DESC;
 
 -- C. Total de aportes económicos del productor "Franco Cristaldi"
 WITH aportaciones_productor AS (
@@ -157,25 +164,26 @@ GROUP BY nombre_productor, estado_civil, telefono, empresa_productora, tipo_prod
 
 -- D. Críticas de "Cinema Paradiso" entre el 15 y el 30 de agosto de 1990, 
 -- incluyendo medio, fecha y autor, ordenadas por fecha descendente
+-- VERSIÓN 1: Críticas dentro de la película
 SELECT 
     -- Información de la película
     (xpath('/pelicula/informacion_basica/titulo/text()', p.documento_xml))[1]::text as pelicula,
     -- Información de las críticas usando XMLTABLE
     crit.fecha_critica,
     TO_CHAR(crit.fecha_critica, 'Day, DD "de" Month "de" YYYY') as fecha_formateada,
-    crit.autor,
-    crit.medio,
-    crit.puntuacion,
-    crit.sentimiento,
-    LENGTH(crit.contenido) as longitud_critica,
+    COALESCE(crit.autor, 'Autor no especificado') as autor,
+    COALESCE(crit.medio, 'Medio no especificado') as medio,
+    COALESCE(crit.puntuacion, 0) as puntuacion,
+    COALESCE(crit.sentimiento, 'No especificado') as sentimiento,
+    COALESCE(LENGTH(crit.contenido), 0) as longitud_critica,
     CASE 
-        WHEN crit.puntuacion >= 4.5 THEN 'Excelente'
-        WHEN crit.puntuacion >= 4.0 THEN 'Muy Buena'
-        WHEN crit.puntuacion >= 3.5 THEN 'Buena'
-        WHEN crit.puntuacion >= 3.0 THEN 'Regular'
+        WHEN COALESCE(crit.puntuacion, 0) >= 4.5 THEN 'Excelente'
+        WHEN COALESCE(crit.puntuacion, 0) >= 4.0 THEN 'Muy Buena'
+        WHEN COALESCE(crit.puntuacion, 0) >= 3.5 THEN 'Buena'
+        WHEN COALESCE(crit.puntuacion, 0) >= 3.0 THEN 'Regular'
         ELSE 'Mala'
     END as categoria_puntuacion,
-    crit.contenido
+    COALESCE(crit.contenido, 'Contenido no disponible') as contenido
 FROM xml_cine.peliculas_xml p,
      XMLTABLE('/pelicula/criticas/critica' 
              PASSING p.documento_xml
@@ -190,28 +198,43 @@ FROM xml_cine.peliculas_xml p,
 WHERE (xpath('/pelicula/informacion_basica/titulo/text()', p.documento_xml))[1]::text = 'Cinema Paradiso'
   AND crit.fecha_critica BETWEEN '1990-08-15' AND '1990-08-30'
 
+-- VERSIÓN 2: También buscar en documentos de críticas separados (si existen)
 UNION ALL
-
--- También buscar en documentos de críticas separados
 SELECT 
-    c.pelicula_referencia as pelicula,
+    'Cinema Paradiso' as pelicula,
     crit2.fecha_critica,
     TO_CHAR(crit2.fecha_critica, 'Day, DD "de" Month "de" YYYY') as fecha_formateada,
-    crit2.autor,
-    crit2.medio,
-    crit2.puntuacion,
-    crit2.sentimiento,
-    LENGTH(crit2.contenido) as longitud_critica,
+    COALESCE(crit2.autor, 'Autor no especificado') as autor,
+    COALESCE(crit2.medio, 'Medio no especificado') as medio,
+    COALESCE(crit2.puntuacion, 0) as puntuacion,
+    COALESCE(crit2.sentimiento, 'No especificado') as sentimiento,
+    COALESCE(LENGTH(crit2.contenido), 0) as longitud_critica,
     CASE 
-        WHEN crit2.puntuacion >= 4.5 THEN 'Excelente'
-        WHEN crit2.puntuacion >= 4.0 THEN 'Muy Buena'
-        WHEN crit2.puntuacion >= 3.5 THEN 'Buena'
-        WHEN crit2.puntuacion >= 3.0 THEN 'Regular'
+        WHEN COALESCE(crit2.puntuacion, 0) >= 4.5 THEN 'Excelente'
+        WHEN COALESCE(crit2.puntuacion, 0) >= 4.0 THEN 'Muy Buena'
+        WHEN COALESCE(crit2.puntuacion, 0) >= 3.5 THEN 'Buena'
+        WHEN COALESCE(crit2.puntuacion, 0) >= 3.0 THEN 'Regular'
         ELSE 'Mala'
     END as categoria_puntuacion,
-    crit2.contenido
+    COALESCE(crit2.contenido, 'Contenido no disponible') as contenido
 FROM xml_cine.criticas_xml c,
      XMLTABLE('/criticas/critica' 
+             PASSING c.documento_xml
+             COLUMNS 
+                 fecha_critica DATE PATH '@fecha',
+                 autor TEXT PATH 'autor/text()',
+                 medio TEXT PATH 'medio/text()',
+                 contenido TEXT PATH 'contenido/text()',
+                 puntuacion NUMERIC PATH 'puntuacion/text()',
+                 sentimiento TEXT PATH 'sentimiento/text()'
+     ) AS crit2
+WHERE c.id_pelicula IN (
+    SELECT pel.id_documento 
+    FROM xml_cine.peliculas_xml pel 
+    WHERE (xpath('/pelicula/informacion_basica/titulo/text()', pel.documento_xml))[1]::text = 'Cinema Paradiso'
+)
+  AND crit2.fecha_critica BETWEEN '1990-08-15' AND '1990-08-30'
+ORDER BY fecha_critica DESC, puntuacion DESC;
              PASSING c.documento_xml
              COLUMNS 
                  fecha_critica DATE PATH '@fecha',
