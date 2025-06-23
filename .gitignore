@@ -1,0 +1,102 @@
+# ============================================================================
+# .gitignore - Proyecto BDA (Bases de Datos Avanzadas)
+# ============================================================================
+
+# Archivos de configuración sensibles
+.env
+.env.local
+.env.production
+.env.staging
+
+# Logs de bases de datos
+*.log
+logs/
+*.sql.log
+
+# Archivos temporales de bases de datos
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Archivos de dump de bases de datos
+*.dump
+*.sql.gz
+dumps/
+backups/
+
+# Directorios de datos de contenedores Docker
+docker-data/
+postgres-data/
+mongo-data/
+neo4j-data/
+
+# Archivos de configuración específicos del usuario
+config.local.*
+settings.local.*
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos de Node.js (si se usan scripts auxiliares)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de Python (si se usan scripts auxiliares)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Archivos de documentación generada
+docs/_build/
+target/
+
+# Archivos de pruebas
+.coverage
+.pytest_cache/
+.tox/
+.nox/
+
+# Archivos específicos del proyecto
+resultados_consultas/
+reportes_generados/
+exports/
+
+# Certificados y claves
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Archivos de configuración de servicios
+docker-compose.override.yml
+docker-compose.local.yml

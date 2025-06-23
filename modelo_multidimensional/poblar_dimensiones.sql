@@ -1,7 +1,7 @@
 -- POBLACIÓN DE DATOS PARA MODELO MULTIDIMENSIONAL
 -- Insertamos datos de ejemplo basados en "Cinema Paradiso" y otras películas
 
--- Poblar dimensión tiempo (años 1988-1995)
+-- Poblar dimensión tiempo (años 1960-1998 para cubrir todas las películas)
 INSERT INTO dw_cine.dim_tiempo (fecha, anio, mes, dia, trimestre, semestre, nombre_mes, nombre_dia, es_fin_semana, es_festivo)
 SELECT 
     fecha_serie,
@@ -22,7 +22,7 @@ SELECT
     TO_CHAR(fecha_serie, 'Day') as nombre_dia,
     CASE WHEN EXTRACT(DOW FROM fecha_serie) IN (0, 6) THEN TRUE ELSE FALSE END as es_fin_semana,
     FALSE as es_festivo
-FROM generate_series('1988-01-01'::date, '1995-12-31'::date, '1 day') as fecha_serie;
+FROM generate_series('1960-01-01'::date, '1998-12-31'::date, '1 day') as fecha_serie;
 
 -- Poblar dimensión personas (100+ registros)
 INSERT INTO dw_cine.dim_persona (nombre, fecha_nacimiento, edad_actual, estado_civil, telefono, tipo_persona, rango_edad, generacion) VALUES
@@ -96,11 +96,11 @@ SELECT
     'Descripción detallada de la película número ' || generate_series || ' que cuenta una historia fascinante llena de emociones, aventuras y personajes memorables que han marcado la historia del cine italiano. Esta obra cinematográfica explora temas universales como el amor, la familia, la amistad, el sacrificio y la redención, ofreciendo al espectador una experiencia única que combina entretenimiento de calidad con reflexiones profundas sobre la condición humana y la sociedad contemporánea, utilizando técnicas narrativas innovadoras y una cinematografía excepcional que ha sido reconocida por críticos y audiencias de todo el mundo, convirtiéndose en un referente del séptimo arte.',
     '1988-01-01'::date + (generate_series * interval '30 days'),
     1988 + (generate_series / 12),
-    1.0 + (generate_series % 5) + (random() * 0.9),
+    1.0 + (generate_series % 4) + (random() * 0.9),
     CASE 
-        WHEN (1.0 + (generate_series % 5) + (random() * 0.9)) >= 4.5 THEN 'Excelente'
-        WHEN (1.0 + (generate_series % 5) + (random() * 0.9)) >= 3.5 THEN 'Buena'
-        WHEN (1.0 + (generate_series % 5) + (random() * 0.9)) >= 2.5 THEN 'Regular'
+        WHEN (1.0 + (generate_series % 4) + (random() * 0.9)) >= 4.5 THEN 'Excelente'
+        WHEN (1.0 + (generate_series % 4) + (random() * 0.9)) >= 3.5 THEN 'Buena'
+        WHEN (1.0 + (generate_series % 4) + (random() * 0.9)) >= 2.5 THEN 'Regular'
         ELSE 'Mala'
     END,
     75 + (generate_series % 25),
