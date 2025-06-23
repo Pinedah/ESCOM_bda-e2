@@ -17,8 +17,8 @@ INSERT INTO obj_cine.director (
         '1956-05-27',
         'Bagheria, Sicilia, Italia',
         'Casado',
-        ROW('+39-091-123456', 'gtornatore@email.com', 'Via Roma 123, Bagheria, Italia')
-    ),
+        ROW('+39-091-123456', 'gtornatore@email.com', 'Via Roma 123, Bagheria, Italia')::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,
     'Cineasta italiano conocido por sus obras nostálgicas y poéticas que exploran temas de memoria, tiempo y cine.',
     'Realismo poético con elementos nostálgicos',
     0, -- Se actualizará automáticamente con el trigger
@@ -31,8 +31,8 @@ INSERT INTO obj_cine.director (
         '1920-01-20',
         'Rimini, Italia',
         'Casado',
-        ROW('+39-06-234567', 'ffellini@email.com', 'Via Veneto 456, Roma, Italia')
-    ),
+        ROW('+39-06-234567', 'ffellini@email.com', 'Via Veneto 456, Roma, Italia')::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,
     'Uno de los directores más influyentes del cine italiano, conocido por su estilo surrealista y personal.',
     'Surrealismo cinematográfico',
     0,
@@ -45,8 +45,8 @@ INSERT INTO obj_cine.director (
         '1952-10-27',
         'Manciano La Misericordia, Italia',
         'Casado',
-        ROW('+39-055-345678', 'rbenigni@email.com', 'Piazza Signoria 789, Firenze, Italia')
-    ),
+        ROW('+39-055-345678', 'rbenigni@email.com', 'Piazza Signoria 789, Firenze, Italia')::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,
     'Actor, director y guionista italiano conocido por combinar comedia y drama en sus obras.',
     'Comedia dramática humanista',
     0,
@@ -70,10 +70,10 @@ INSERT INTO obj_cine.productor (
         '1924-10-03',
         'Turín, Italia',
         'Casado',
-        ROW('+39-06-111222', 'fcristaldi@email.com', 'Via del Corso 100, Roma, Italia')
-    ),
+        ROW('+39-06-111222', 'fcristaldi@email.com', 'Via del Corso 100, Roma, Italia')::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,
     'Productor cinematográfico italiano, fundador de Vides Cinematografica.',
-    ROW(8500000.00, 65.00, 'Inversión directa'),
+    ROW(8500000.00, 65.00, 'Inversión directa')::obj_cine.tipo_info_produccion,
     'Vides Cinematografica',
     'Ejecutivo',
     0
@@ -84,10 +84,10 @@ INSERT INTO obj_cine.productor (
         '1935-09-15',
         'Roma, Italia',
         'Casada',
-        ROW('+39-06-222333', 'gromagnoli@email.com', 'Via Nazionale 200, Roma, Italia')
-    ),
+        ROW('+39-06-222333', 'gromagnoli@email.com', 'Via Nazionale 200, Roma, Italia')::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,
     'Productora asociada especializada en cine de autor italiano.',
-    ROW(3200000.00, 35.00, 'Coproducción'),
+    ROW(3200000.00, 35.00, 'Coproducción')::obj_cine.tipo_info_produccion,
     'Romagnoli Films',
     'Asociada',
     0
@@ -98,10 +98,10 @@ INSERT INTO obj_cine.productor (
         '1919-08-08',
         'Torre Annunziata, Italia',
         'Casado',
-        ROW('+39-06-333444', 'ddelaurentiis@email.com', 'Via Appia 300, Roma, Italia')
-    ),
+        ROW('+39-06-333444', 'ddelaurentiis@email.com', 'Via Appia 300, Roma, Italia')::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,
     'Productor cinematográfico italiano, uno de los más exitosos de la historia del cine.',
-    ROW(15000000.00, 80.00, 'Inversión directa'),
+    ROW(15000000.00, 80.00, 'Inversión directa')::obj_cine.tipo_info_produccion,
     'De Laurentiis Entertainment Group',
     'Ejecutivo',
     0
@@ -123,10 +123,10 @@ INSERT INTO obj_cine.actor (
         '1979-11-08',
         'Palazzo Adriano, Sicilia, Italia',
         'Casado',
-        ROW('+39-090-111222', 'scascio@email.com', 'Via Garibaldi 10, Palazzo Adriano, Italia')
-    ),
+        ROW('+39-090-111222', 'scascio@email.com', 'Via Garibaldi 10, Palazzo Adriano, Italia')::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,
     'Actor italiano que debutó como niño en Cinema Paradiso.',
-    ROW(1200000.00, 150000.00, 1350000.00),
+    ROW(1200000.00, 150000.00, 1350000.00)::obj_cine.tipo_info_financiera,
     'Actor infantil y juvenil',
     15,
     ARRAY['Protagonista', 'Drama']
@@ -137,10 +137,10 @@ INSERT INTO obj_cine.actor (
         '1971-11-14',
         'Melbourne, Australia',
         'Divorciado',
-        ROW('+39-06-222333', 'mleonardi@email.com', 'Via Trastevere 25, Roma, Italia')
-    ),
+        ROW('+39-06-222333', 'mleonardi@email.com', 'Via Trastevere 25, Roma, Italia')::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,
     'Actor italiano-australiano conocido por sus roles en Cinema Paradiso y otras producciones.',
-    ROW(1800000.00, 200000.00, 2000000.00),
+    ROW(1800000.00, 200000.00, 2000000.00)::obj_cine.tipo_info_financiera,
     'Actor dramático',
     25,
     ARRAY['Protagonista', 'Secundario', 'Drama', 'Romance']
@@ -151,10 +151,10 @@ INSERT INTO obj_cine.actor (
         '1941-07-13',
         'París, Francia',
         'Casado',
-        ROW('+33-01-333444', 'jperrin@email.com', '15 Rue de Rivoli, París, Francia')
-    ),
+        ROW('+33-01-333444', 'jperrin@email.com', '15 Rue de Rivoli, París, Francia')::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,
     'Actor y productor francés con una larga carrera en cine europeo.',
-    ROW(2500000.00, 300000.00, 2800000.00),
+    ROW(2500000.00, 300000.00, 2800000.00)::obj_cine.tipo_info_financiera,
     'Actor veterano',
     45,
     ARRAY['Protagonista', 'Secundario', 'Drama', 'Thriller']
@@ -165,10 +165,9 @@ INSERT INTO obj_cine.actor (
         '1930-10-01',
         'Lille, Francia',
         'Casado',
-        ROW('+33-01-444555', 'pnoiret@email.com', '8 Boulevard Saint-Germain, París, Francia')
-    ),
-    'Actor francés icónico del cine europeo, conocido por su versatilidad.',
-    ROW(3200000.00, 400000.00, 3600000.00),
+        ROW('+33-01-444555', 'pnoiret@email.com', '8 Boulevard Saint-Germain, París, Francia')::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,    'Actor francés icónico del cine europeo, conocido por su versatilidad.',
+    ROW(3200000.00, 400000.00, 3600000.00)::obj_cine.tipo_info_financiera,
     'Actor de carácter',
     50,
     ARRAY['Protagonista', 'Drama', 'Comedia']
@@ -179,10 +178,10 @@ INSERT INTO obj_cine.actor (
         '1946-06-15',
         'Tourcoing, Francia',
         'Casada',
-        ROW('+33-01-555666', 'bfossey@email.com', '22 Avenue des Champs-Élysées, París, Francia')
-    ),
+        ROW('+33-01-555666', 'bfossey@email.com', '22 Avenue des Champs-Élysées, París, Francia')::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,
     'Actriz francesa conocida desde la infancia, con una carrera sólida en cine europeo.',
-    ROW(850000.00, 100000.00, 950000.00),
+    ROW(850000.00, 100000.00, 950000.00)::obj_cine.tipo_info_financiera,
     'Actriz dramática',
     40,
     ARRAY['Secundario', 'Drama', 'Romance']
@@ -193,10 +192,10 @@ INSERT INTO obj_cine.actor (
         '1963-05-23',
         'Catania, Sicilia, Italia',
         'Casada',
-        ROW('+39-090-666777', 'aattili@email.com', 'Via Etnea 50, Catania, Italia')
-    ),
+        ROW('+39-090-666777', 'aattili@email.com', 'Via Etnea 50, Catania, Italia')::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,
     'Actriz italiana especializada en cine de autor siciliano.',
-    ROW(750000.00, 80000.00, 830000.00),
+    ROW(750000.00, 80000.00, 830000.00)::obj_cine.tipo_info_financiera,
     'Actriz regional',
     30,
     ARRAY['Secundario', 'De reparto', 'Drama']
@@ -207,10 +206,10 @@ INSERT INTO obj_cine.actor (
         '1928-04-05',
         'Castellammare di Stabia, Italia',
         'Casado',
-        ROW('+39-081-777888', 'ecannavale@email.com', 'Via Toledo 75, Nápoles, Italia')
-    ),
+        ROW('+39-081-777888', 'ecannavale@email.com', 'Via Toledo 75, Nápoles, Italia')::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,
     'Actor italiano conocido por sus roles cómicos y dramáticos.',
-    ROW(680000.00, 70000.00, 750000.00),
+    ROW(680000.00, 70000.00, 750000.00)::obj_cine.tipo_info_financiera,
     'Actor de carácter',
     35,
     ARRAY['Secundario', 'Comedia', 'Drama']
@@ -221,10 +220,9 @@ INSERT INTO obj_cine.actor (
         '1946-01-09',
         'Catania, Sicilia, Italia',
         'Casado',
-        ROW('+39-095-999000', 'lgullotta@email.com', 'Corso Italia 88, Catania, Italia')
-    ),
-    'Actor siciliano reconocido por su trabajo en teatro y cine.',
-    ROW(600000.00, 60000.00, 660000.00),
+        ROW('+39-095-999000', 'lgullotta@email.com', 'Corso Italia 88, Catania, Italia')::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,    'Actor siciliano reconocido por su trabajo en teatro y cine.',
+    ROW(600000.00, 60000.00, 660000.00)::obj_cine.tipo_info_financiera,
     'Actor teatral',
     40,
     ARRAY['De reparto', 'Teatro', 'Drama']
@@ -255,14 +253,14 @@ SELECT
             '+39-06-' || LPAD(generate_series::text, 6, '0'),
             'actor' || generate_series || '@email.com',
             'Via Roma ' || generate_series || ', Roma, Italia'
-        )
-    ),
+        )::obj_cine.tipo_contacto
+    )::obj_cine.tipo_info_personal,
     'Actor italiano con experiencia en diferentes géneros cinematográficos.',
     ROW(
         (600000 + (generate_series * 50000))::numeric(12,2),
         (50000 + (generate_series * 5000))::numeric(10,2),
         (650000 + (generate_series * 55000))::numeric(12,2)
-    ),
+    )::obj_cine.tipo_info_financiera,
     CASE (generate_series % 4)
         WHEN 0 THEN 'Actor dramático'
         WHEN 1 THEN 'Actor cómico'
@@ -372,13 +370,13 @@ INSERT INTO obj_cine.participacion (
     notas
 ) VALUES
 -- Cinema Paradiso
-((SELECT id_persona FROM obj_cine.actor WHERE nombre = 'Salvatore Cascio'), 1, 'Protagonista', 'Salvatore (niño)', ROW(1200000.00, 150000.00, 1350000.00), '1988-05-01', '1988-08-30', 'Debut cinematográfico'),
-((SELECT id_persona FROM obj_cine.actor WHERE nombre = 'Marco Leonardi'), 1, 'Protagonista', 'Salvatore (joven)', ROW(1800000.00, 200000.00, 2000000.00), '1988-05-01', '1988-08-30', 'Papel secundario protagonista'),
-((SELECT id_persona FROM obj_cine.actor WHERE nombre = 'Jacques Perrin'), 1, 'Protagonista', 'Salvatore (adulto)', ROW(2500000.00, 300000.00, 2800000.00), '1988-06-15', '1988-07-15', 'Papel narrativo principal'),
-((SELECT id_persona FROM obj_cine.actor WHERE nombre = 'Philippe Noiret'), 1, 'Protagonista', 'Alfredo', ROW(3200000.00, 400000.00, 3600000.00), '1988-05-01', '1988-08-30', 'Papel central de la historia'),
-((SELECT id_persona FROM obj_cine.actor WHERE nombre = 'Brigitte Fossey'), 1, 'Secundario', 'Elena', ROW(850000.00, 100000.00, 950000.00), '1988-06-01', '1988-07-30', 'Interés romántico'),
-((SELECT id_persona FROM obj_cine.actor WHERE nombre = 'Antonella Attili'), 1, 'Secundario', 'Madre de Salvatore', ROW(750000.00, 80000.00, 830000.00), '1988-05-15', '1988-08-15', 'Papel familiar importante'),
-((SELECT id_persona FROM obj_cine.actor WHERE nombre = 'Leo Gullotta'), 1, 'De reparto', 'Spaccafico', ROW(600000.00, 60000.00, 660000.00), '1988-07-01', '1988-07-15', 'Personaje del pueblo');
+((SELECT id_persona FROM obj_cine.actor WHERE nombre = 'Salvatore Cascio'), 1, 'Protagonista', 'Salvatore (niño)', ROW(1200000.00, 150000.00, 1350000.00)::obj_cine.tipo_info_financiera, '1988-05-01', '1988-08-30', 'Debut cinematográfico'),
+((SELECT id_persona FROM obj_cine.actor WHERE nombre = 'Marco Leonardi'), 1, 'Protagonista', 'Salvatore (joven)', ROW(1800000.00, 200000.00, 2000000.00)::obj_cine.tipo_info_financiera, '1988-05-01', '1988-08-30', 'Papel secundario protagonista'),
+((SELECT id_persona FROM obj_cine.actor WHERE nombre = 'Jacques Perrin'), 1, 'Protagonista', 'Salvatore (adulto)', ROW(2500000.00, 300000.00, 2800000.00)::obj_cine.tipo_info_financiera, '1988-06-15', '1988-07-15', 'Papel narrativo principal'),
+((SELECT id_persona FROM obj_cine.actor WHERE nombre = 'Philippe Noiret'), 1, 'Protagonista', 'Alfredo', ROW(3200000.00, 400000.00, 3600000.00)::obj_cine.tipo_info_financiera, '1988-05-01', '1988-08-30', 'Papel central de la historia'),
+((SELECT id_persona FROM obj_cine.actor WHERE nombre = 'Brigitte Fossey'), 1, 'Secundario', 'Elena', ROW(850000.00, 100000.00, 950000.00)::obj_cine.tipo_info_financiera, '1988-06-01', '1988-07-30', 'Interés romántico'),
+((SELECT id_persona FROM obj_cine.actor WHERE nombre = 'Antonella Attili'), 1, 'Secundario', 'Madre de Salvatore', ROW(750000.00, 80000.00, 830000.00)::obj_cine.tipo_info_financiera, '1988-05-15', '1988-08-15', 'Papel familiar importante'),
+((SELECT id_persona FROM obj_cine.actor WHERE nombre = 'Leo Gullotta'), 1, 'De reparto', 'Spaccafico', ROW(600000.00, 60000.00, 660000.00)::obj_cine.tipo_info_financiera, '1988-07-01', '1988-07-15', 'Personaje del pueblo');
 
 -- Insertar producciones (relación productor-película)
 INSERT INTO obj_cine.produccion (
@@ -389,6 +387,6 @@ INSERT INTO obj_cine.produccion (
     fecha_inicio,
     fecha_fin
 ) VALUES
-((SELECT id_persona FROM obj_cine.productor WHERE nombre = 'Franco Cristaldi'), 1, ROW(8500000.00, 65.00, 'Inversión directa'), 'Productor Ejecutivo', '1987-12-01', '1988-11-17'),
-((SELECT id_persona FROM obj_cine.productor WHERE nombre = 'Giovanna Romagnoli'), 1, ROW(3200000.00, 35.00, 'Coproducción'), 'Productora Asociada', '1987-12-01', '1988-11-17'),
-((SELECT id_persona FROM obj_cine.productor WHERE nombre = 'Dino De Laurentiis'), 2, ROW(15000000.00, 80.00, 'Inversión directa'), 'Productor Ejecutivo', '1959-06-01', '1960-02-05');
+((SELECT id_persona FROM obj_cine.productor WHERE nombre = 'Franco Cristaldi'), 1, ROW(8500000.00, 65.00, 'Inversión directa')::obj_cine.tipo_info_produccion, 'Productor Ejecutivo', '1987-12-01', '1988-11-17'),
+((SELECT id_persona FROM obj_cine.productor WHERE nombre = 'Giovanna Romagnoli'), 1, ROW(3200000.00, 35.00, 'Coproducción')::obj_cine.tipo_info_produccion, 'Productora Asociada', '1987-12-01', '1988-11-17'),
+((SELECT id_persona FROM obj_cine.productor WHERE nombre = 'Dino De Laurentiis'), 2, ROW(15000000.00, 80.00, 'Inversión directa')::obj_cine.tipo_info_produccion, 'Productor Ejecutivo', '1959-06-01', '1960-02-05');
