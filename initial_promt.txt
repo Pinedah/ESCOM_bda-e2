@@ -1,0 +1,244 @@
+Eres un agente de codificación responsable de resolver y entregar un proyecto completo a partir de un examen de Bases de Datos Avanzadas del Instituto Politécnico Nacional, Escuela Superior de Cómputo (IPN - ESCOM). El objetivo es transformar un modelo Entidad-Relación (ER) sobre películas a diferentes modelos de datos NoSQL, semiestructurados y multidimensionales, además de ejecutar consultas específicas y contenerizar los servicios con Docker.
+
+🧩 🗂 Estructura Base de la Base de Datos (MySQL)
+Esta estructura representa una posible implementación inicial en MySQL del modelo ER de películas, que debes usar como base para transformarla a los modelos requeridos:
+
+sql
+Copy
+Edit
+CREATE DATABASE cine;
+USE cine;
+
+-- Catálogos
+CREATE TABLE estado_civil (
+  id_estado INT PRIMARY KEY AUTO_INCREMENT,
+  descripcion VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE tipo_actuacion (
+  id_tipo INT PRIMARY KEY AUTO_INCREMENT,
+  descripcion VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE tipo_certamen (
+  id_tipo INT PRIMARY KEY AUTO_INCREMENT,
+  descripcion VARCHAR(50) NOT NULL
+);
+
+-- Personas
+CREATE TABLE persona (
+  id_persona INT PRIMARY KEY AUTO_INCREMENT,
+  nombre VARCHAR(100) NOT NULL,
+  fecha_nacimiento DATE NOT NULL,
+  estado_civil_id INT,
+  telefono VARCHAR(20),
+  FOREIGN KEY (estado_civil_id) REFERENCES estado_civil(id_estado)
+);
+
+-- Actores (especialización de persona)
+CREATE TABLE actor (
+  id_actor INT PRIMARY KEY,
+  salario DECIMAL(12,2) CHECK (salario BETWEEN 600000 AND 4900000),
+  FOREIGN KEY (id_actor) REFERENCES persona(id_persona)
+);
+
+-- Directores
+CREATE TABLE director (
+  id_director INT PRIMARY KEY,
+  FOREIGN KEY (id_director) REFERENCES persona(id_persona)
+);
+
+-- Productores
+CREATE TABLE productor (
+  id_productor INT PRIMARY KEY,
+  aportacion_economica DECIMAL(12,2) CHECK (aportacion_economica > 0),
+  FOREIGN KEY (id_productor) REFERENCES persona(id_persona)
+);
+
+-- Películas
+CREATE TABLE pelicula (
+  id_pelicula INT PRIMARY KEY AUTO_INCREMENT,
+  titulo VARCHAR(150) NOT NULL,
+  resumen TEXT,
+  fecha_estreno DATE,
+  ranking DECIMAL(2,1) CHECK (ranking BETWEEN 1.0 AND 5.0),
+  id_director INT,
+  FOREIGN KEY (id_director) REFERENCES director(id_director)
+);
+
+-- Relación de actuación en películas
+CREATE TABLE actuacion (
+  id_actor INT,
+  id_pelicula INT,
+  tipo_actuacion_id INT,
+  PRIMARY KEY (id_actor, id_pelicula),
+  FOREIGN KEY (id_actor) REFERENCES actor(id_actor),
+  FOREIGN KEY (id_pelicula) REFERENCES pelicula(id_pelicula),
+  FOREIGN KEY (tipo_actuacion_id) REFERENCES tipo_actuacion(id_tipo)
+);
+
+-- Relación de producción
+CREATE TABLE produccion (
+  id_productor INT,
+  id_pelicula INT,
+  PRIMARY KEY (id_productor, id_pelicula),
+  FOREIGN KEY (id_productor) REFERENCES productor(id_productor),
+  FOREIGN KEY (id_pelicula) REFERENCES pelicula(id_pelicula)
+);
+
+-- Premios
+CREATE TABLE premio (
+  id_premio INT PRIMARY KEY AUTO_INCREMENT,
+  nombre VARCHAR(100) NOT NULL,
+  id_pelicula INT,
+  id_certamen INT,
+  FOREIGN KEY (id_pelicula) REFERENCES pelicula(id_pelicula),
+  FOREIGN KEY (id_certamen) REFERENCES tipo_certamen(id_tipo)
+);
+
+-- Críticas
+CREATE TABLE critica (
+  id_critica INT PRIMARY KEY AUTO_INCREMENT,
+  id_pelicula INT,
+  medio VARCHAR(100),
+  autor VARCHAR(100),
+  fecha DATE,
+  contenido TEXT,
+  FOREIGN KEY (id_pelicula) REFERENCES pelicula(id_pelicula)
+);
+Este modelo incluye catálogos, especialización de personas, relaciones actor-película y productor-película, premios y críticas. El agente debe tomar este esquema como referencia para poblar, consultar y transformar los datos a todos los modelos solicitados.
+
+📦 Requisitos Generales
+Contenerización con Docker:
+
+Todos los sistemas que usen bases de datos (PostgreSQL, MongoDB, Neo4j) deben ejecutarse en contenedores Docker.
+
+Crear un archivo docker-compose.yml que orqueste todos los servicios.
+
+Asegurarse de que cada contenedor tenga sus propios volúmenes persistentes.
+
+Poblado de datos:
+
+Cada entidad de catálogo (como estado civil, tipo de actuación) debe tener al menos 50 registros.
+
+Entidades transaccionales (película, actor, productor) deben tener al menos 100 registros consistentes y realistas.
+
+Formato de datos y validaciones:
+
+Aportaciones económicas y salarios: valores numéricos positivos con hasta dos decimales.
+
+Salarios de actores entre $600,000.00 y $4,900,000.00.
+
+Estados civiles válidos: Soltero, Casado, Divorciado, Viudo, Unión libre.
+
+Tipos de certamen: Nacional, Internacional.
+
+Resumen de película: entre 250 y 450 palabras.
+
+Fechas en formato YYYY-MM-DD.
+
+Ranking: valor entre 1.0 y 5.0, con al menos un decimal.
+
+Tipo de actuación: Protagonista, Secundario, De reparto, Extra.
+
+🛠️ Tareas por Modelo
+1. ⭐ Modelo Multidimensional (Estrella) – PostgreSQL
+Diseña una tabla de hechos y sus respectivas dimensiones.
+
+Incluye el diagrama en imagen legible.
+
+Usa tipos de datos SQL apropiados (especificar).
+
+Implementa las consultas usando MDX (o SQL avanzado si no se cuenta con un servidor OLAP).
+
+Implementa el modelo completo en PostgreSQL y contenerízalo.
+
+2. 🧱 Modelo Relacional-Objetual – PostgreSQL
+Transforma el modelo ER usando:
+
+Tipos compuestos (CREATE TYPE)
+
+Herencia de tablas
+
+Funciones en PL/pgSQL
+
+Dominios personalizados para validaciones.
+
+Incluye un diagrama de clases o esquema.
+
+Incluye:
+
+Código de creación de tipos y tablas.
+
+Inserción de datos.
+
+Resolución de las consultas.
+
+Usar PostgreSQL en contenedor Docker.
+
+3. 🗂️ Modelo Semiestructurado (XML) – PostgreSQL
+Modelar los datos en formato XML.
+
+Justificar el uso de cada característica de XML.
+
+Incluir:
+
+Documento XML Schema (XSD).
+
+Código SQL para crear tablas, insertar documentos XML y ejecutar consultas con XPath y SQL/XML.
+
+Usar PostgreSQL con soporte XML en contenedor Docker.
+
+4. 🧾 Modelo Semiestructurado (JSON) – MongoDB
+Modelar los datos como documentos JSON.
+
+Incluir:
+
+Documento JSON Schema del modelo.
+
+Código BSON (Mongo Shell) para:
+
+Crear colecciones.
+
+Poblar datos.
+
+Ejecutar las consultas de negocio.
+
+Usar MongoDB en contenedor Docker.
+
+5. 🧠 Modelo Orientado a Grafos – Neo4j
+Modelar las entidades y relaciones como nodos y aristas.
+
+Incluir:
+
+Imagen del grafo (ejemplar representativo).
+
+Código en Cypher para creación de nodos, relaciones y consultas.
+
+Usar Neo4j en contenedor Docker.
+
+📊 Consultas de Negocio a Implementar en Todos los Modelos
+A. Total de salarios pagados a los actores de "Cinema Paradiso", dirigida por "Giuseppe Tornatore".
+
+B. Premios recibidos por "Cinema Paradiso", con ranking (descendente), nombre del premio y lugar del certamen.
+
+C. Total de aportes económicos del productor "Franco Cristaldi".
+
+D. Críticas de "Cinema Paradiso" entre el 15 y el 30 de agosto de 1990, incluyendo medio, fecha y autor, ordenadas por fecha descendente.
+
+E. Personas involucradas en la filmación de "Cinema Paradiso", mostrando nombre, rol (actor, director, productor), edad actual, estado civil y teléfono.
+
+🧾 Entregables Finales
+Carpeta con cada modelo en su subcarpeta correspondiente:
+
+bash
+Copy
+Edit
+/modelo_multidimensional/
+/modelo_objetual/
+/modelo_xml/
+/modelo_json/
+/modelo_grafo/
+Archivo docker-compose.yml funcional que contenga servicios para PostgreSQL, MongoDB y Neo4j.
+
+Carpeta /scripts/ con todos los scripts de creación, inserción y consulta por modelo.

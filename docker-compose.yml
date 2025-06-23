@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # PostgreSQL para modelos multidimensional, objetual y XML
+  postgres:
+    image: postgres:15
+    container_name: escom_postgres
+    environment:
+      POSTGRES_DB: cine_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/postgres:/docker-entrypoint-initdb.d
+    networks:
+      - escom_network
+
+  # MongoDB para modelo JSON
+  mongodb:
+    image: mongo:7.0
+    container_name: escom_mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: cine_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/mongodb:/docker-entrypoint-initdb.d
+    networks:
+      - escom_network
+
+  # Neo4j para modelo de grafos
+  neo4j:
+    image: neo4j:5.15
+    container_name: escom_neo4j
+    environment:
+      NEO4J_AUTH: neo4j/neo4j123
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - neo4j_import:/var/lib/neo4j/import
+      - ./scripts/neo4j:/var/lib/neo4j/import/scripts
+    networks:
+      - escom_network
+
+  # PgAdmin para administración de PostgreSQL
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: escom_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@escom.ipn.mx
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - escom_network
+
+  # Mongo Express para administración de MongoDB
+  mongo-express:
+    image: mongo-express:1.0.2
+    container_name: escom_mongo_express
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin123
+      ME_CONFIG_MONGODB_URL: mongodb://admin:admin123@mongodb:27017/
+      ME_CONFIG_BASICAUTH: false
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+    networks:
+      - escom_network
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_import:
+  pgadmin_data:
+
+networks:
+  escom_network:
+    driver: bridge

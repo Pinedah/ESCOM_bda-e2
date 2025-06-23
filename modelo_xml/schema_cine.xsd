@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://escom.ipn.mx/cine"
+           xmlns:cine="http://escom.ipn.mx/cine"
+           elementFormDefault="qualified">
+
+    <!-- ========================================= -->
+    <!-- TIPOS SIMPLES PERSONALIZADOS -->
+    <!-- ========================================= -->
+    
+    <!-- Tipo para ranking de películas (1.0 - 5.0) -->
+    <xs:simpleType name="RankingType">
+        <xs:restriction base="xs:decimal">
+            <xs:minInclusive value="1.0"/>
+            <xs:maxInclusive value="5.0"/>
+            <xs:fractionDigits value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Tipo para salarios de actores -->
+    <xs:simpleType name="SalarioActorType">
+        <xs:restriction base="xs:decimal">
+            <xs:minInclusive value="600000.00"/>
+            <xs:maxInclusive value="4900000.00"/>
+            <xs:fractionDigits value="2"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Tipo para aportaciones económicas -->
+    <xs:simpleType name="AportacionType">
+        <xs:restriction base="xs:decimal">
+            <xs:minExclusive value="0"/>
+            <xs:fractionDigits value="2"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Enumeración para estados civiles -->
+    <xs:simpleType name="EstadoCivilType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Soltero"/>
+            <xs:enumeration value="Casado"/>
+            <xs:enumeration value="Divorciado"/>
+            <xs:enumeration value="Viudo"/>
+            <xs:enumeration value="Unión libre"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Enumeración para tipos de actuación -->
+    <xs:simpleType name="TipoActuacionType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Protagonista"/>
+            <xs:enumeration value="Secundario"/>
+            <xs:enumeration value="De reparto"/>
+            <xs:enumeration value="Extra"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Enumeración para tipos de certamen -->
+    <xs:simpleType name="TipoCertamenType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Nacional"/>
+            <xs:enumeration value="Internacional"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Tipo para teléfonos con patrón -->
+    <xs:simpleType name="TelefonoType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[+]?[0-9\-\s()]{10,20}"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Tipo para email -->
+    <xs:simpleType name="EmailType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Tipo para resumen de película (250-450 palabras aproximadas) -->
+    <xs:simpleType name="ResumenType">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1000"/>  <!-- Aproximadamente 250 palabras -->
+            <xs:maxLength value="3000"/>  <!-- Aproximadamente 450 palabras -->
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- ========================================= -->
+    <!-- TIPOS COMPLEJOS -->
+    <!-- ========================================= -->
+    
+    <!-- Tipo para información de contacto -->
+    <xs:complexType name="ContactoType">
+        <xs:sequence>
+            <xs:element name="telefono" type="cine:TelefonoType"/>
+            <xs:element name="email" type="cine:EmailType" minOccurs="0"/>
+            <xs:element name="direccion" type="xs:string" minOccurs="0"/>
+            <xs:element name="ciudad" type="xs:string" minOccurs="0"/>
+            <xs:element name="pais" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!-- Tipo para información personal -->
+    <xs:complexType name="InformacionPersonalType">
+        <xs:sequence>
+            <xs:element name="nombre" type="xs:string"/>
+            <xs:element name="fecha_nacimiento" type="xs:date"/>
+            <xs:element name="lugar_nacimiento" type="xs:string" minOccurs="0"/>
+            <xs:element name="estado_civil" type="cine:EstadoCivilType"/>
+            <xs:element name="contacto" type="cine:ContactoType"/>
+            <xs:element name="biografia" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:positiveInteger" use="required"/>
+    </xs:complexType>
+    
+    <!-- Tipo para información financiera de actores -->
+    <xs:complexType name="InformacionFinancieraActorType">
+        <xs:sequence>
+            <xs:element name="salario_base" type="cine:SalarioActorType"/>
+            <xs:element name="bonificaciones" type="xs:decimal" default="0"/>
+            <xs:element name="salario_total" type="xs:decimal"/>
+            <xs:element name="fecha_contrato" type="xs:date" minOccurs="0"/>
+            <xs:element name="agente" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!-- Tipo para información de producción -->
+    <xs:complexType name="InformacionProduccionType">
+        <xs:sequence>
+            <xs:element name="aportacion" type="cine:AportacionType"/>
+            <xs:element name="porcentaje_participacion" type="xs:decimal"/>
+            <xs:element name="tipo_inversion" type="xs:string"/>
+            <xs:element name="empresa" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!-- Tipo para director -->
+    <xs:complexType name="DirectorType">
+        <xs:sequence>
+            <xs:element name="informacion_personal" type="cine:InformacionPersonalType"/>
+            <xs:element name="estilo_direccion" type="xs:string" minOccurs="0"/>
+            <xs:element name="escuela_cine" type="xs:string" minOccurs="0"/>
+            <xs:element name="años_experiencia" type="xs:nonNegativeInteger"/>
+            <xs:element name="premios_direccion" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="premio" type="xs:string" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!-- Tipo para actor -->
+    <xs:complexType name="ActorType">
+        <xs:sequence>
+            <xs:element name="informacion_personal" type="cine:InformacionPersonalType"/>
+            <xs:element name="informacion_financiera" type="cine:InformacionFinancieraActorType"/>
+            <xs:element name="especialidad" type="xs:string" minOccurs="0"/>
+            <xs:element name="años_experiencia" type="xs:nonNegativeInteger"/>
+            <xs:element name="tipos_actuacion">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="tipo" type="cine:TipoActuacionType" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!-- Tipo para productor -->
+    <xs:complexType name="ProductorType">
+        <xs:sequence>
+            <xs:element name="informacion_personal" type="cine:InformacionPersonalType"/>
+            <xs:element name="informacion_produccion" type="cine:InformacionProduccionType"/>
+            <xs:element name="empresa_productora" type="xs:string" minOccurs="0"/>
+            <xs:element name="tipo_productor" type="xs:string"/>
+            <xs:element name="proyectos_activos" type="xs:nonNegativeInteger" default="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!-- Tipo para participación en película -->
+    <xs:complexType name="ParticipacionType">
+        <xs:sequence>
+            <xs:element name="actor" type="cine:ActorType"/>
+            <xs:element name="tipo_actuacion" type="cine:TipoActuacionType"/>
+            <xs:element name="personaje" type="xs:string" minOccurs="0"/>
+            <xs:element name="fecha_inicio_rodaje" type="xs:date" minOccurs="0"/>
+            <xs:element name="fecha_fin_rodaje" type="xs:date" minOccurs="0"/>
+            <xs:element name="notas" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!-- Tipo para crítica -->
+    <xs:complexType name="CriticaType">
+        <xs:sequence>
+            <xs:element name="autor" type="xs:string"/>
+            <xs:element name="medio" type="xs:string"/>
+            <xs:element name="contenido" type="xs:string"/>
+            <xs:element name="puntuacion" type="cine:RankingType" minOccurs="0"/>
+            <xs:element name="sentimiento" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="fecha" type="xs:date" use="required"/>
+        <xs:attribute name="id" type="xs:positiveInteger"/>
+    </xs:complexType>
+    
+    <!-- Tipo para premio -->
+    <xs:complexType name="PremioType">
+        <xs:sequence>
+            <xs:element name="nombre" type="xs:string"/>
+            <xs:element name="certamen" type="xs:string"/>
+            <xs:element name="categoria" type="xs:string" minOccurs="0"/>
+            <xs:element name="fecha_otorgamiento" type="xs:date"/>
+            <xs:element name="prestigio" type="xs:string" minOccurs="0"/>
+            <xs:element name="descripcion" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:positiveInteger"/>
+        <xs:attribute name="tipo_certamen" type="cine:TipoCertamenType"/>
+    </xs:complexType>
+
+    <!-- ========================================= -->
+    <!-- ELEMENTO RAÍZ: PELÍCULA -->
+    <!-- ========================================= -->
+    
+    <xs:element name="pelicula">
+        <xs:complexType>
+            <xs:sequence>
+                <!-- Información básica de la película -->
+                <xs:element name="informacion_basica">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="titulo" type="xs:string"/>
+                            <xs:element name="resumen" type="cine:ResumenType"/>
+                            <xs:element name="fecha_estreno" type="xs:date"/>
+                            <xs:element name="ranking" type="cine:RankingType"/>
+                            <xs:element name="duracion_minutos" type="xs:positiveInteger" minOccurs="0"/>
+                            <xs:element name="idioma_original" type="xs:string"/>
+                            <xs:element name="pais_origen" type="xs:string"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                
+                <!-- Clasificación por géneros -->
+                <xs:element name="clasificacion">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="genero" type="xs:string" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                
+                <!-- Información de dirección -->
+                <xs:element name="direccion">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="director" type="cine:DirectorType"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                
+                <!-- Reparto (actores) -->
+                <xs:element name="reparto">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="participacion" type="cine:ParticipacionType" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                
+                <!-- Producción -->
+                <xs:element name="produccion">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="productor" type="cine:ProductorType" maxOccurs="unbounded"/>
+                            <xs:element name="presupuesto" type="xs:decimal" minOccurs="0"/>
+                            <xs:element name="recaudacion" type="xs:decimal" minOccurs="0"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                
+                <!-- Críticas -->
+                <xs:element name="criticas" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="critica" type="cine:CriticaType" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                        <xs:attribute name="total" type="xs:nonNegativeInteger"/>
+                    </xs:complexType>
+                </xs:element>
+                
+                <!-- Premios -->
+                <xs:element name="premios" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="premio" type="cine:PremioType" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                        <xs:attribute name="total" type="xs:nonNegativeInteger"/>
+                    </xs:complexType>
+                </xs:element>
+                
+                <!-- Metadatos del documento -->
+                <xs:element name="metadatos" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="fecha_creacion" type="xs:dateTime"/>
+                            <xs:element name="version" type="xs:decimal"/>
+                            <xs:element name="autor_documento" type="xs:string"/>
+                            <xs:element name="fuente" type="xs:string" minOccurs="0"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            
+            <!-- Atributos del elemento raíz -->
+            <xs:attribute name="id" type="xs:positiveInteger" use="required"/>
+            <xs:attribute name="version_schema" type="xs:string" fixed="1.0"/>
+        </xs:complexType>
+        
+        <!-- Restricciones de integridad -->
+        <xs:unique name="unique_actor_id">
+            <xs:selector xpath="cine:reparto/cine:participacion/cine:actor"/>
+            <xs:field xpath="cine:informacion_personal/@id"/>
+        </xs:unique>
+        
+        <xs:key name="director_key">
+            <xs:selector xpath="cine:direccion/cine:director"/>
+            <xs:field xpath="cine:informacion_personal/@id"/>
+        </xs:key>
+    </xs:element>
+    
+    <!-- ========================================= -->
+    <!-- ELEMENTOS ADICIONALES PARA DOCUMENTOS SEPARADOS -->
+    <!-- ========================================= -->
+    
+    <!-- Elemento para documento de persona independiente -->
+    <xs:element name="persona">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="actor" type="cine:ActorType"/>
+                <xs:element name="director" type="cine:DirectorType"/>
+                <xs:element name="productor" type="cine:ProductorType"/>
+            </xs:choice>
+            <xs:attribute name="tipo" use="required">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="Actor"/>
+                        <xs:enumeration value="Director"/>
+                        <xs:enumeration value="Productor"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+    
+    <!-- Elemento para colección de críticas -->
+    <xs:element name="criticas">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="pelicula_referencia" type="xs:string"/>
+                <xs:element name="critica" type="cine:CriticaType" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="pelicula_id" type="xs:positiveInteger" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <!-- Elemento para colección de premios -->
+    <xs:element name="premios">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="premio" type="cine:PremioType" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

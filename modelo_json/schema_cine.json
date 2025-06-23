@@ -1,0 +1,341 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Schema del Sistema de Cine - Modelo JSON",
+  "description": "Esquema JSON para el modelo semiestructurado del sistema de gestión cinematográfica ESCOM",
+  "type": "object",
+  "definitions": {
+    "SalarioActor": {
+      "type": "number",
+      "minimum": 600000.00,
+      "maximum": 4900000.00,
+      "multipleOf": 0.01,
+      "description": "Salario del actor entre $600,000.00 y $4,900,000.00"
+    },
+    "AportacionEconomica": {
+      "type": "number",
+      "minimum": 0.01,
+      "multipleOf": 0.01,
+      "description": "Aportación económica positiva"
+    },
+    "RankingPelicula": {
+      "type": "number",
+      "minimum": 1.0,
+      "maximum": 5.0,
+      "multipleOf": 0.1,
+      "description": "Ranking de película entre 1.0 y 5.0"
+    },
+    "EstadoCivil": {
+      "type": "string",
+      "enum": ["Soltero", "Casado", "Divorciado", "Viudo", "Unión libre"],
+      "description": "Estados civiles válidos"
+    },
+    "TipoActuacion": {
+      "type": "string",
+      "enum": ["Protagonista", "Secundario", "De reparto", "Extra"],
+      "description": "Tipos de actuación válidos"
+    },
+    "TipoCertamen": {
+      "type": "string",
+      "enum": ["Nacional", "Internacional"],
+      "description": "Tipos de certamen válidos"
+    },
+    "Telefono": {
+      "type": "string",
+      "pattern": "^[+]?[0-9\\-\\s()]{10,20}$",
+      "description": "Formato de teléfono válido"
+    },
+    "Email": {
+      "type": "string",
+      "format": "email",
+      "description": "Dirección de correo electrónico válida"
+    },
+    "Fecha": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha en formato YYYY-MM-DD"
+    },
+    "FechaHora": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Fecha y hora en formato ISO 8601"
+    },
+    "ResumenPelicula": {
+      "type": "string",
+      "minLength": 1000,
+      "maxLength": 3000,
+      "description": "Resumen de película entre 250 y 450 palabras aproximadamente"
+    },
+    "Contacto": {
+      "type": "object",
+      "required": ["telefono", "pais"],
+      "properties": {
+        "telefono": {"$ref": "#/definitions/Telefono"},
+        "email": {"$ref": "#/definitions/Email"},
+        "direccion": {"type": "string"},
+        "ciudad": {"type": "string"},
+        "pais": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "InformacionPersonal": {
+      "type": "object",
+      "required": ["nombre", "fecha_nacimiento", "estado_civil", "contacto"],
+      "properties": {
+        "nombre": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "fecha_nacimiento": {"$ref": "#/definitions/Fecha"},
+        "lugar_nacimiento": {"type": "string"},
+        "estado_civil": {"$ref": "#/definitions/EstadoCivil"},
+        "contacto": {"$ref": "#/definitions/Contacto"},
+        "biografia": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "InformacionFinancieraActor": {
+      "type": "object",
+      "required": ["salario_base", "salario_total"],
+      "properties": {
+        "salario_base": {"$ref": "#/definitions/SalarioActor"},
+        "bonificaciones": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0
+        },
+        "salario_total": {
+          "type": "number",
+          "minimum": 600000.00
+        },
+        "fecha_contrato": {"$ref": "#/definitions/Fecha"},
+        "agente": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "InformacionProduccion": {
+      "type": "object",
+      "required": ["aportacion", "porcentaje_participacion"],
+      "properties": {
+        "aportacion": {"$ref": "#/definitions/AportacionEconomica"},
+        "porcentaje_participacion": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "tipo_inversion": {"type": "string"},
+        "empresa": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "Actor": {
+      "type": "object",
+      "required": ["informacion_personal", "informacion_financiera", "años_experiencia"],
+      "properties": {
+        "_id": {"type": "string"},
+        "informacion_personal": {"$ref": "#/definitions/InformacionPersonal"},
+        "informacion_financiera": {"$ref": "#/definitions/InformacionFinancieraActor"},
+        "especialidad": {"type": "string"},
+        "años_experiencia": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tipos_actuacion": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/TipoActuacion"},
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "Director": {
+      "type": "object",
+      "required": ["informacion_personal", "años_experiencia"],
+      "properties": {
+        "_id": {"type": "string"},
+        "informacion_personal": {"$ref": "#/definitions/InformacionPersonal"},
+        "estilo_direccion": {"type": "string"},
+        "escuela_cine": {"type": "string"},
+        "años_experiencia": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "premios_direccion": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "peliculas_dirigidas": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "Productor": {
+      "type": "object",
+      "required": ["informacion_personal", "informacion_produccion"],
+      "properties": {
+        "_id": {"type": "string"},
+        "informacion_personal": {"$ref": "#/definitions/InformacionPersonal"},
+        "informacion_produccion": {"$ref": "#/definitions/InformacionProduccion"},
+        "empresa_productora": {"type": "string"},
+        "tipo_productor": {"type": "string"},
+        "proyectos_activos": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "Participacion": {
+      "type": "object",
+      "required": ["actor_id", "tipo_actuacion"],
+      "properties": {
+        "actor_id": {"type": "string"},
+        "actor_nombre": {"type": "string"},
+        "tipo_actuacion": {"$ref": "#/definitions/TipoActuacion"},
+        "personaje": {"type": "string"},
+        "informacion_financiera": {"$ref": "#/definitions/InformacionFinancieraActor"},
+        "fecha_inicio_rodaje": {"$ref": "#/definitions/Fecha"},
+        "fecha_fin_rodaje": {"$ref": "#/definitions/Fecha"},
+        "notas": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "ProduccionPelicula": {
+      "type": "object",
+      "required": ["productor_id"],
+      "properties": {
+        "productor_id": {"type": "string"},
+        "productor_nombre": {"type": "string"},
+        "informacion_produccion": {"$ref": "#/definitions/InformacionProduccion"},
+        "rol_produccion": {"type": "string"},
+        "fecha_inicio": {"$ref": "#/definitions/Fecha"},
+        "fecha_fin": {"$ref": "#/definitions/Fecha"}
+      },
+      "additionalProperties": false
+    },
+    "Critica": {
+      "type": "object",
+      "required": ["autor", "medio", "fecha", "contenido"],
+      "properties": {
+        "_id": {"type": "string"},
+        "autor": {"type": "string"},
+        "medio": {"type": "string"},
+        "fecha": {"$ref": "#/definitions/Fecha"},
+        "contenido": {"type": "string"},
+        "puntuacion": {"$ref": "#/definitions/RankingPelicula"},
+        "sentimiento": {
+          "type": "string",
+          "enum": ["Muy Positivo", "Positivo", "Neutral", "Negativo", "Muy Negativo"]
+        },
+        "longitud_critica": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "Premio": {
+      "type": "object",
+      "required": ["nombre", "certamen", "fecha_otorgamiento"],
+      "properties": {
+        "_id": {"type": "string"},
+        "nombre": {"type": "string"},
+        "certamen": {"type": "string"},
+        "categoria": {"type": "string"},
+        "fecha_otorgamiento": {"$ref": "#/definitions/Fecha"},
+        "tipo_certamen": {"$ref": "#/definitions/TipoCertamen"},
+        "prestigio": {
+          "type": "string",
+          "enum": ["Muy Alto", "Alto", "Medio", "Bajo"]
+        },
+        "descripcion": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "Pelicula": {
+      "type": "object",
+      "required": ["titulo", "resumen", "fecha_estreno", "ranking", "director", "reparto", "produccion"],
+      "properties": {
+        "_id": {"type": "string"},
+        "titulo": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "resumen": {"$ref": "#/definitions/ResumenPelicula"},
+        "fecha_estreno": {"$ref": "#/definitions/Fecha"},
+        "ranking": {"$ref": "#/definitions/RankingPelicula"},
+        "duracion_minutos": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "generos": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "idioma_original": {"type": "string"},
+        "pais_origen": {"type": "string"},
+        "presupuesto": {
+          "type": "number",
+          "minimum": 0
+        },
+        "recaudacion": {
+          "type": "number",
+          "minimum": 0
+        },
+        "director": {
+          "type": "object",
+          "required": ["director_id", "nombre"],
+          "properties": {
+            "director_id": {"type": "string"},
+            "nombre": {"type": "string"}
+          }
+        },
+        "reparto": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Participacion"},
+          "minItems": 1
+        },
+        "produccion": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/ProduccionPelicula"},
+          "minItems": 1
+        },
+        "criticas": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Critica"}
+        },
+        "premios": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Premio"}
+        },
+        "metadatos": {
+          "type": "object",
+          "properties": {
+            "fecha_creacion": {"$ref": "#/definitions/FechaHora"},
+            "fecha_actualizacion": {"$ref": "#/definitions/FechaHora"},
+            "version": {"type": "string"},
+            "autor_documento": {"type": "string"},
+            "fuente": {"type": "string"}
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Persona": {
+      "oneOf": [
+        {"$ref": "#/definitions/Actor"},
+        {"$ref": "#/definitions/Director"},
+        {"$ref": "#/definitions/Productor"}
+      ]
+    }
+  }
+}
